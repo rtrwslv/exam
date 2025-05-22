@@ -26,3 +26,11 @@ browser.addEventListener("pageshow", () => {
     insertPlainText(plainPart.body);
   }, true);
 }, { once: true }); // Важно: один раз, иначе будет вставлять повторно
+
+
+console.log("Inserted plain/text block into messagepane");
+console.log("Resulting body innerHTML:", messageDoc.body.innerHTML);
+
+
+div.textContent = "ТЕСТОВЫЙ plain/text КОНТЕНТ!";
+messageDoc.body.innerHTML += `<div style="background:#fdd;border:1px solid red;">DEBUG BLOCK</div>`;
