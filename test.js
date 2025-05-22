@@ -12,7 +12,13 @@ MsgHdrToMimeMessage(gMessage, null, (msgHdr, mimeMsg) => {
 
   const plainPart = parts.find(part => part.contentType === "text/plain");
   if (plainPart && plainPart.body) {
-    const div = document.createElement("div");
+    const messageDoc = messagepane?.contentDocument;
+    if (!messageDoc) {
+      console.error("messagepane.contentDocument not available");
+      return;
+    }
+
+    const div = messageDoc.createElement("div");
     div.style.marginTop = "1em";
     div.style.padding = "0.5em";
     div.style.background = "#f0f0f0";
@@ -20,9 +26,6 @@ MsgHdrToMimeMessage(gMessage, null, (msgHdr, mimeMsg) => {
     div.style.whiteSpace = "pre-wrap";
     div.textContent = plainPart.body;
 
-    const messageDoc = messagepane?.contentDocument;
-    if (messageDoc?.body) {
-      messageDoc.body.appendChild(div);
-    }
+    messageDoc.body.appendChild(div);
   }
 }, true);
