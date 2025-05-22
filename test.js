@@ -4,28 +4,37 @@ MsgHdrToMimeMessage(gMessage, null, (msgHdr, mimeMsg) => {
     return;
   }
 
-  const parts = mimeMsg.parts || [];
-  if (!parts.length) {
-    console.warn("No parts found in mimeMsg");
+  const plainPart = (mimeMsg.parts || []).find(
+    part => part.contentType === "text/plain"
+  );
+
+  if (!plainPart || !plainPart.body) {
+    console.warn("text/plain part not found");
     return;
   }
 
-  const plainPart = parts.find(part => part.contentType === "text/plain");
-  if (plainPart && plainPart.body) {
-    const messageDoc = messagepane?.contentDocument;
-    if (!messageDoc) {
-      console.error("messagepane.contentDocument not available");
-      return;
-    }
-
-    const div = messageDoc.createElement("div");
-    div.style.marginTop = "1em";
-    div.style.padding = "0.5em";
-    div.style.background = "#f0f0f0";
-    div.style.border = "1px dashed #aaa";
-    div.style.whiteSpace = "pre-wrap";
-    div.textContent = plainPart.body;
-
-    messageDoc.body.appendChild(div);
+  // Получаем <browser id="messagepane">
+  const browser = document.getElementById("messagepane");
+  if (!browser) {
+    console.error("browser#messagepane not found");
+    return;
   }
+
+  const messageDoc = browser.contentDocument;
+  if (!messageDoc || !messageDoc.body) {
+    console.error("messagepane.contentDocument is not ready");
+    return;
+  }
+
+  // Создаем элемент прямо в том документе
+  const div = messageDoc.createElement("div");
+  div.style.marginTop = "1em";
+  div.style.padding = "0.5em";
+  div.style.background = "#f5f5f5";
+  div.style.border = "1px dashed #888";
+  div.style.whiteSpace = "pre-wrap";
+  div.textContent = plainPart.body;
+
+  // Вставляем текст в самый конец письма
+  messageDoc.body.appendChild(div);
 }, true);
