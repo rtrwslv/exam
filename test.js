@@ -1,39 +1,26 @@
-window.addEventListener("load", () => {
-    let messagePane = document.getElementById("messagepane");
-    if (!messagePane) return;
-  
-    messagePane.addEventListener("load", async () => {
-      try {
-        let msgHdr = gFolderDisplay?.selectedMessage;
-        if (!msgHdr) return;
-  
-        // Попробуем получить MIME-объект (если доступен)
-        let parts = gMessageDisplay?.displayedMessage?.allBodyParts;
-        if (!parts) {
-          console.warn("MIME части не найдены");
-          return;
-        }
-  
-        // Вставим в DOM для проверки
-        let container = document.createElement("div");
-        container.id = "extraContent";
-        container.style.padding = "1em";
-        container.style.border = "1px solid #aaa";
-        container.style.margin = "1em";
-  
-        for (let part of parts) {
-          if (["text/plain", "text/calendar"].includes(part.contentType)) {
-            let text = await part.getContentAsText();
-            let block = document.createElement("pre");
-            block.textContent = `[${part.contentType}]\n` + text;
-            container.appendChild(block);
-          }
-        }
-  
-        messagePane.parentNode.insertBefore(container, messagePane.nextSibling);
-      } catch (e) {
-        console.error("Ошибка извлечения MIME:", e);
+MsgHdrToMimeMessage(
+  gFolderDisplay.selectedMessage,
+  null,
+  function (msgHdr, mimeMsg) {
+    const plainPart = mimeMsg.allBodyParts.find(
+      part => part.contentType === "text/plain"
+    );
+
+    if (plainPart && plainPart.body) {
+      // Создаем div и вставляем
+      const div = document.createElement("div");
+      div.style.marginTop = "1em";
+      div.style.padding = "0.5em";
+      div.style.background = "#f5f5f5";
+      div.style.border = "1px dashed #ccc";
+      div.style.whiteSpace = "pre-wrap"; // сохраняет переносы
+      div.textContent = plainPart.body;
+
+      const messagePane = document.getElementById("messagepane");
+      if (messagePane?.contentDocument?.body) {
+        messagePane.contentDocument.body.appendChild(div);
       }
-    }, { once: true });
-  });
-  
+    }
+  },
+  true
+);
